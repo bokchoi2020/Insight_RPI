@@ -21,10 +21,10 @@ Located in the Firmware folder.
 Needs to be determined. Perhaps PyQT5 or use of HTML5 might be suited.
 
 
-##Credits
+## Credits
 
-###fbtft kernel module (Framebuffer driver for ILI9341)
+### fbtft kernel module (Framebuffer driver for ILI9341)
 https://github.com/notro/fbtft
 
-###fbcp - Framebuffer copy
+### fbcp - Framebuffer copy
 https://github.com/tasanakorn/rpi-fbcp
