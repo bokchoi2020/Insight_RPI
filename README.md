@@ -1,6 +1,6 @@
-#Insight RPI Repo
+# Insight RPI Repo
 
-##Display
+## Display
 
 Load the small ILI9341 SPI display
 ```
@@ -12,10 +12,10 @@ To let the driver autoload (untested)
 make autodisplay
 ```
 
-##Sensor, Bluetooth
+## Sensor, Bluetooth
 
 Located in the Firmware folder.
 
-##GUI
+## GUI
 
 Needs to be determined. Perhaps PyQT5 or use of HTML5 might be suited.
