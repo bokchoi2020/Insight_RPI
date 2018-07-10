@@ -1,28 +1,18 @@
 import bluetooth
-
-#Create bluetooth sock for RFCOMM
-server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-
-#Bind script on host "" to port
-port=1
+ 
+server_socket=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+ 
+port = 1
 server_socket.bind(("",port))
-print("socket created.", server_socket)
-
-#Server accepts one connection at a time
 server_socket.listen(1)
-
-#server accepts client's connection request
-client_socket, address = server_socket.accept()
-print("accepted client request.", server_socket)
-
-print ("Accepted Connection from", address)
-
+ 
+client_socket,address = server_socket.accept()
+print "Accepted connection from ",address
 while 1:
-	data = client_socket.recv(1024)
-	print ("Received %s", data)
-	
-	if(data == "quit"):
-		break
-
+ data = client_socket.recv(1024)
+ print "Received: %s" % data
+ if (data == "q"):
+  print ("Quit")
+  break 
 client_socket.close()
 server_socket.close()

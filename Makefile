@@ -9,6 +9,15 @@ copydisplay:
 	sleep 2
 	Firmware/fbcp&
 
+setupbluetooth:
+	sudo sed -i '/^ExecStart=/a ExecStartPost=/usr/bin/sdptool add SP' /etc/systemd/system/dbus-org.bluez.service 
+	sudo sed -i 's/^ExecStart=.*/& -C --noplugin=sap/' /etc/systemd/system/dbus-org.bluez.service 
+#	echo "power on"|sudo bluetoothctl
+#	echo "agent on"|sudo bluetoothctl
+#	echo "discoverable on"|sudo bluetoothctl
+#	echo "pairable on"|sudo bluetoothctl
+#	echo "scan on"|sudo bluetoothctl
+
 rund: initdisplay copydisplay
 
 autodisplay:
