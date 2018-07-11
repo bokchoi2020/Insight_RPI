@@ -1,0 +1,39 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<html>
+<head>
+<style>
+body {
+    font-family: Verdana, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 26.4px;
+}
+</style>
+</head>
+
+<body>
+	Hi there.<br>
+	Current Speed Lah:
+	<p id="speed">Speed</p>
+</body>
+</html>
+<script type="text/javascript">
+    var username = "{{ data.username }}";
+    var speed = "{{ data.speed }}";
+    var rsps;
+    $(document).ready(function() {
+    	$("#speed").text(speed);
+   	});
+
+	setTimeout(function() {
+    	location.reload();
+ 	}, 1000);
+
+    $.get("/speed/", function(data) {
+        rsps = data;
+        alert("Load was performed.");
+    });
+
+</script>
