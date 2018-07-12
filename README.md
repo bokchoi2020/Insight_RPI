@@ -21,9 +21,9 @@ To make sure that RFCOMM SPP profile is enabled for RPI:
 ```
 make setupbluetooth
 ```
-Pair the phone to a bluetooth device, and add it to trusted devices.
+Pair the Raspberry Pi to an Android phone over Bluetooth, and add it to trusted devices.
 Then run the Firmware/comm.py script.
-After, run a Serial Terminal Bluetooth android app and try to send strings over.
+After, run a Serial Terminal Bluetooth Android app and try to send strings over.
 
 
 

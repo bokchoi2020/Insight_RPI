@@ -1,18 +1,17 @@
 import bluetooth
  
 server_socket=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-uuid = ac9635ee-84a7-11e8-adc0-fa7ae01bbebc 
+uuid = "ac9635ee-84a7-11e8-adc0-fa7ae01bbebc"
 #port = 1
 #server_socket.bind(("",port))
-server_sock.bind(("", bluetooth.PORT_ANY))
+server_socket.bind(("", bluetooth.PORT_ANY))
 server_socket.listen(1)
-port = server_sock.getsockname()[1]
+port = server_socket.getsockname()[1]
 
 bluetooth.advertise_service( server_socket, "SampleServer",
                         service_id = uuid,
                         service_classes = [ uuid, bluetooth.SERIAL_PORT_CLASS ],
-                        profiles = [ bluetooth.SERIAL_PORT_PROFILE ] 
-                         )
+                        profiles = [ bluetooth.SERIAL_PORT_PROFILE ]                          )
 
 print "Waiting for connection on RFCOMM channel %d" % port
 
