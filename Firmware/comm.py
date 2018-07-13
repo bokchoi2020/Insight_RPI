@@ -66,7 +66,7 @@ while 1:
             print("Full Message:", message)
             del buffer[:index+1]
             handleMsg(json.loads(message))
-            client_socket.send("ack\0");
+            client_socket.send("ack\0")
             
         #process the parsed data.
         #print ("JSON parsed: %s" % obj["data"])
@@ -83,6 +83,6 @@ while 1:
         server_socket, client_socket = est_comm()
     except AttributeError:
         print ("Issue parsing json.")
-        client_socket.send("nack\0");
+        client_socket.send("nack\0")
     
     
