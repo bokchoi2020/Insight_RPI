@@ -9,6 +9,9 @@ copydisplay:
 	sleep 2
 	Firmware/fbcp&
 
+startserver:
+	./server.sh&
+
 setupbluetooth:
 	#Make bluetooth start in RFCOMM/SPP mode
 	sudo sed -i '/^ExecStart=/a ExecStartPost=/usr/bin/sdptool add SP' /etc/systemd/system/dbus-org.bluez.service 

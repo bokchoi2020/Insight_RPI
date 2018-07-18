@@ -24,16 +24,13 @@ body {
     var speed = "{{ data.speed }}";
     var rsps;
     $(document).ready(function() {
-    	$("#speed").text(speed);
+    	$("#speed").text(speed+" m/s");
    	});
-
-	setTimeout(function() {
-    	location.reload();
- 	}, 1000);
-
-    $.get("/speed/", function(data) {
+    setInterval(function(){$.get("/speed", function(data) {
         rsps = data;
-        alert("Load was performed.");
-    });
+        console.log(rsps);
+	$("#speed").text(rsps["speed"]+" m/s");
+    });}, 500)
+    
 
 </script>
