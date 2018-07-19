@@ -13,13 +13,37 @@ app = Flask('insight_screen')
 data = {"username": "Bokchoi", "speed": 0, "speed_unit": "km/h"}
 
 speed = 0
+dir = "<b>test</b>"
+
+def handleMsg(obj):
+    global speed
+    global dir
+    msgType = obj["messageType"]
+    
+    if(msgType == "updateDir"):
+        print("Distance Left:", obj["distanceUtil"])
+        print("Instruction: ", obj["instruction"])
+        if("maneuver" in obj):
+            print("Direction:", obj["maneuver"])
+        dir = obj["instruction"]
+        pass
+    elif(msgType == "updateSpeed"):
+        print("Speed: ", obj["speed"])
+        speed = obj["speed"]
+        pass
+    elif(msgType == "updateSetting"):
+        print("Property to update :", obj["propName"])
+        print("Value :", obj["value"])
+        pass
+    pass
+
+thread_bluetooth = Thread(target = comm.start_comm, args=(handleMsg,))
+thread_bluetooth.start()
+thread_distance = Thread(target = distance.scan_dist)
+thread_distance.start()
 
 @app.route('/')
 def handleGetMain():
-	thread_bluetooth = Thread(target = comm.start_comm, args=(handleMsg,))
-	thread_bluetooth.start()
-	thread_distance = Thread(target = distance.scan_dist)
-	thread_distance.start()
 	data["speed"] = 0
 	return render_template('front.html', data=data)
 
@@ -33,23 +57,14 @@ def handleGetSpeed():
 		mimetype="application/json"
 	)
 	return response
-
-def handleMsg(obj):
-    global speed
-    msgType = obj["messageType"]
-    
-    if(msgType == "updateDir"):
-        print("Distance Left:", obj["distanceUtil"])
-        print("Instruction: ", obj["instruction"])
-        if("maneuver" in obj):
-            print("Direction:", obj["maneuver"])
-        pass
-    elif(msgType == "updateSpeed"):
-        print("Speed: ", obj["speed"])
-        speed = obj["speed"]
-        pass
-    elif(msgType == "updateSetting"):
-        print("Property to update :", obj["propName"])
-        print("Value :", obj["value"])
-        pass
-    pass
+@app.route('/dir')
+def handleGetDir():
+	global dir
+	resp={}
+	resp["dir"] = dir
+	response = app.response_class(
+		response = json.dumps(resp),
+		status = 200,
+		mimetype="application/json"
+	)
+	return response
