@@ -10,7 +10,7 @@ copydisplay:
 	Firmware/fbcp&
 
 startserver:
-	./server.sh
+	./server.sh&
 
 setupbluetooth:
 	#Make bluetooth start in RFCOMM/SPP mode

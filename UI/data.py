@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, json, jsonify
 from json import *
 from random import *
 from threading import Thread
+import logging
 
 import sys
 sys.path.insert(0, '../Firmware/')
@@ -15,11 +16,16 @@ data = {"username": "Bokchoi", "speed": 0, "speed_unit": "km/h"}
 speed = 0
 dir = "<b>test</b>"
 
+#get rid of log spam
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 def handleMsg(obj):
     global speed
     global dir
     msgType = obj["messageType"]
-    
+    print("")    
+
     if(msgType == "updateDir"):
         print("Distance Left:", obj["distanceUtil"])
         print("Instruction: ", obj["instruction"])

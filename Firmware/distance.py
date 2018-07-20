@@ -54,15 +54,16 @@ def scan_dist():
         if(distance < distanceLimit):
             if(not ledON):
                 print("LED ON")
+                print ("Distance: %.1f cm" % distance)
                 GPIO.output(pinLED, True)
                 ledON = True
         else:
             if(ledON):
                 print("LED OFF")
+                print ("Distance: %.1f cm" % distance)
                 GPIO.output(pinLED, False)
                 ledON = False
             
-        print ("Distance: %.1f cm" % distance)
         time.sleep(1)
 #if __name__ == "__main__":
 #   scan_dist()

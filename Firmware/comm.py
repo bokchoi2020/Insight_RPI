@@ -45,7 +45,7 @@ def start_comm(msghandler):
             print(index)
             if(index > -1):
                 message = ''.join(buffer[:index])
-                print("Full Message:", message)
+                #print("Full Message:", message)
                 del buffer[:index+1]
                 msghandler(json.loads(message))
                 client_socket.send("ack\0")
