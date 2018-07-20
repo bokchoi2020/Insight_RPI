@@ -1,4 +1,4 @@
 cd UI
 . venv/bin/activate 
-export FLASK_APP="data.py"
+export FLASK_APP="server.py"
 flask run 

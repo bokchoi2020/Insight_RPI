@@ -37,13 +37,13 @@ With the venv started, run:
 
 On Windows
 ```
-$env:FLASK_APP="data.py"
+$env:FLASK_APP="server.py"
 flask run
 ```
 
 On Linux manual
 ```
-export FLASK_APP="data.py"
+export FLASK_APP="server.py"
 flask run
 ```
 
@@ -54,7 +54,7 @@ make startserver
 to start the server.
 Hit up http://127.0.0.1:5000/ in a browser to see the client.
 
-All server code is in data.py.
+All server code is in server.py.
 All client code is in templates/front.html.
 
 
