@@ -1,3 +1,5 @@
+#include <string>
+#include <iostream>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -5,6 +7,14 @@
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 #include <bluetooth/rfcomm.h>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
+using namespace std;
+using namespace rapidjson;
+
+#define READ_SIZE 1024
 
 //thanks to https://github.com/RyanGlScott/BluetoothTest/blob/master/C%20BlueZ%20Server/bluez_server.c
 //thanks to Albert Huang, MIT https://people.csail.mit.edu/albert/bluez-intro/
@@ -22,6 +32,8 @@
 //(in C you can just use temporary addresses BADDR_ANY and BADDR_LOCAL in bluetooth.h)
 bdaddr_t bADDR_ANY = {0, 0, 0, 0, 0, 0};
 bdaddr_t bADDR_LOCAL = {0, 0, 0, 0xff, 0xff, 0xff};
+struct sockaddr_rc loc_addr = { 0 }, rem_addr = { 0 };
+int sock, client;
 
 sdp_session_t *register_service(uint8_t rfcomm_channel) {
 
@@ -115,8 +127,21 @@ sdp_session_t *register_service(uint8_t rfcomm_channel) {
 
 	return session;
 }
-struct sockaddr_rc loc_addr = { 0 }, rem_addr = { 0 };
-int sock, client;
+
+void connectClient()
+{
+	socklen_t opt = sizeof(rem_addr);
+	char buffer[1024] = { 0 };
+	// accept one connection
+	printf("calling accept()\n");
+	client = accept(sock, (struct sockaddr *)&rem_addr, &opt);
+	printf("accept() returned %d\n", client);
+
+	ba2str(&rem_addr.rc_bdaddr, buffer);
+	fprintf(stderr, "accepted connection from %s\n", buffer);
+	memset(buffer, 0, sizeof(buffer));
+	
+}
 
 int init_server() {
 	int port = 1, result;
@@ -146,50 +171,40 @@ int init_server() {
 
 	//sdpRegisterL2cap(port);
 
-	// accept one connection
-	printf("calling accept()\n");
-	client = accept(sock, (struct sockaddr *)&rem_addr, &opt);
-	printf("accept() returned %d\n", client);
-
-	ba2str(&rem_addr.rc_bdaddr, buffer);
-	fprintf(stderr, "accepted connection from %s\n", buffer);
-	memset(buffer, 0, sizeof(buffer));
+	connectClient();
 
 	return client;
 }
 
-void reconnnect()
-{
-	close(client);
-	socklen_t opt = sizeof(rem_addr);
-	char buffer[1024] = { 0 };
-
-	printf("calling accept()\n");
-	client = accept(sock, (struct sockaddr *)&rem_addr, &opt);
-	printf("accept() returned %d\n", client);
-
-	ba2str(&rem_addr.rc_bdaddr, buffer);
-	fprintf(stderr, "accepted connection from %s\n", buffer);
-	memset(buffer, 0, sizeof(buffer));
-	
-}
-
-char input[1024] = { 0 };
-char *read_server(int client) {
+string buffer;
+string read_server(int client) {
 	// read data from the client
-	//char input[1024] = { 0 };
+	char input[READ_SIZE] = { 0 };
 	int bytes_read;
 	bytes_read = read(client, input, sizeof(input));
-	if (bytes_read > 0) {
+	if (bytes_read > 0) 
+	{
 		printf("received [%s]\n", input);
-		return input;
-	} else {
+		buffer += input;
+		cout<<"buffer contains" << buffer <<endl;
+		if(input[bytes_read-1] == 0)
+		{
+			string message = buffer;
+			buffer = "";
+			return message;
+		}
+		else
+			return "";
+	} 
+	else 
+	{
 		printf("Disconnected. read returned %d\n", bytes_read);
 		if(bytes_read == 0)
 			printf("Disconnected properly.\n");
 		else
 			printf("Sudden error caused disconnect.\n");
-		reconnnect();
+		close(client);
+		connectClient();
 		return "";
 	}
 }
@@ -205,17 +220,48 @@ void write_server(int client, char *message) {
 	}
 }
 
+Document msgHandler(string s)
+{
+	Document d;
+	if(d.Parse(s.c_str()).HasParseError())
+	{
+		cout<<"JSON parse error"<<endl;
+		return NULL;
+	}
+	Value& vtype = d["messageType"];
+
+	string type = vtype.GetString();
+	
+	if(type == "updateSetting")
+	{
+		FILE *fp;
+
+		cout << "Creating file." << endl; 
+		fp = fopen("settings.json", "w");
+		if(fp != NULL)
+		{
+			fputs(s.c_str(), fp);
+			fclose(fp);
+		}
+		else
+			cout << "Error. Could not create file." <<endl;
+	}
+
+	return d;
+}
+
 int main()
 {
 	int client = init_server();	
-
-	char message[1024];
 	while(1)
 	{
-		char *temp = read_server(client);
-		memcpy(&message, temp, sizeof(message));
+		string temp = read_server(client);
 
-		printf("%s", temp);
+		if(!temp.empty())
+		{
+			cout << temp <<endl;
+			msgHandler(temp);
+		}
 
 	}
 	return 0;

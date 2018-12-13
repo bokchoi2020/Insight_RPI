@@ -4,7 +4,7 @@ createdir:
 ultrasound:
 	g++ -g -o bin/ultrasnd.out hc-sr04.cpp -lwiringPi
 bluetooth:
-	g++ -g -o bin/bluetooth.out bluetooth.c -lbluetooth
+	g++ -g -o bin/bluetooth.out bluetooth.c -lbluetooth -Iinclude
 clean:
 	rm -rf bin/
 run:
