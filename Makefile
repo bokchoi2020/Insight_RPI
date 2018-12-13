@@ -1,4 +1,4 @@
-all: createdir ultrasound
+all: createdir ultrasound bluetooth
 createdir:
 	mkdir -p bin
 ultrasound:
