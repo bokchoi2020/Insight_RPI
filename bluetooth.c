@@ -262,7 +262,6 @@ int main()
 			cout << temp <<endl;
 			msgHandler(temp);
 		}
-
 	}
 	return 0;
 }
