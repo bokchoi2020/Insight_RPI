@@ -1,22 +1,18 @@
 #include <iostream>
-#include <wiringPi.h>
 #include <errno.h>
 #include <string.h>
 #include <stdint.h>     // for uint32_t
-#include <sys/time.h>
+#include "hc-sr04.h"
 
 using namespace std;
 
-#define ULT_REQ 17
-#define LED 5
-#define N_SENSOR 2
 int ult_echo [N_SENSOR] = { 27, 22 };
+int ult_rdy[N_SENSOR];
+float u_distance[N_SENSOR];
 
 uint32_t startTime[N_SENSOR];
 uint32_t endTime[N_SENSOR];
-float u_distance[N_SENSOR];
 bool falling_flag[N_SENSOR];
-int ult_rdy[N_SENSOR];
 
 inline void calcUltDistance(int sensor)
 {
@@ -46,7 +42,7 @@ void isrULT1()
 
 void (* pISR[2])() = {isrULT0, isrULT1};
 
-void setup() 
+void ultsetup() 
 {
     //setup Pi to use BCM GPIO
     wiringPiSetupGpio();
@@ -79,40 +75,28 @@ void sendULTReq()
     //cout << "req time: "<< micros() <<endl;
 }
 
-int main(void)
+void getAllDistance()
 {
-    setup();
-
-    sendULTReq();
-
-    while(1)
+    for(int i = 0; i < N_SENSOR; i++)
     {
-        delay(60);
-        for(int i = 0; i < N_SENSOR; i++)
+        if(ult_rdy[i] == 1)
         {
-            if(ult_rdy[i] == 1)
-            {
-                cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
-                //cout <<"start time: " <<startTime <<endl;
-                //cout <<"end time: "<< endTime <<endl<<endl;
-                ++ult_rdy[i];
-            } 
-        }
-
-        //only send a new request once all sensors are ready
-        if(ult_rdy[0] == 2 && ult_rdy[1] == 2)
-        {
-            ult_rdy[0] = 0;
-            ult_rdy[1] = 0;
-            sendULTReq();
-        }
-
-        if(u_distance[0] < 20 || u_distance[1] < 20)
-                digitalWrite(LED, HIGH);
-        else
-                digitalWrite(LED, LOW);
+            cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
+            //cout <<"start time: " <<startTime <<endl;
+            //cout <<"end time: "<< endTime <<endl<<endl;
+            ++ult_rdy[i];
+        } 
+    }
+    //only send a new request once all sensors are ready
+    if(ult_rdy[0] == 2 && ult_rdy[1] == 2)
+    {
+        ult_rdy[0] = 0;
+        ult_rdy[1] = 0;
+        sendULTReq();
     }
 
-    return 0;
+    if(u_distance[0] < 20 || u_distance[1] < 20)
+            digitalWrite(LED, HIGH);
+    else
+            digitalWrite(LED, LOW);
 }
-
