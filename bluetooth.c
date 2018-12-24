@@ -7,12 +7,8 @@
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 #include <bluetooth/rfcomm.h>
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-
-using namespace std;
-using namespace rapidjson;
+#include "bluetooth.h"
+#include <sys/poll.h>
 
 #define READ_SIZE 1024
 
@@ -33,7 +29,8 @@ using namespace rapidjson;
 bdaddr_t bADDR_ANY = {0, 0, 0, 0, 0, 0};
 bdaddr_t bADDR_LOCAL = {0, 0, 0, 0xff, 0xff, 0xff};
 struct sockaddr_rc loc_addr = { 0 }, rem_addr = { 0 };
-int sock, client;
+struct pollfd rd_pollfd = { 0 };
+int sock, client = -1, rv;
 
 sdp_session_t *register_service(uint8_t rfcomm_channel) {
 
@@ -128,22 +125,33 @@ sdp_session_t *register_service(uint8_t rfcomm_channel) {
 	return session;
 }
 
-void connectClient()
+void waitClientConnect()
+{
+	// accept one connection
+	//monitor socket to see if a client has connected.
+	cout<<"Waiting for connection..."<<endl;
+	client = -1;
+	rd_pollfd.fd = sock;
+	rd_pollfd.events = POLLIN;
+}
+
+void acceptClientConnection()
 {
 	socklen_t opt = sizeof(rem_addr);
 	char buffer[1024] = { 0 };
-	// accept one connection
+
 	printf("calling accept()\n");
 	client = accept(sock, (struct sockaddr *)&rem_addr, &opt);
 	printf("accept() returned %d\n", client);
-
 	ba2str(&rem_addr.rc_bdaddr, buffer);
 	fprintf(stderr, "accepted connection from %s\n", buffer);
 	memset(buffer, 0, sizeof(buffer));
-	
+	//monitor client to read from.
+	rd_pollfd.fd = client;
+	rd_pollfd.events = POLLIN|POLLERR|POLLHUP;
 }
 
-int init_server() {
+void init_server() {
 	int port = 1, result;
 	//struct sockaddr_rc loc_addr = { 0 }, rem_addr = { 0 };
 	char buffer[1024] = { 0 };
@@ -170,10 +178,7 @@ int init_server() {
 	printf("listen() returned %d\n", result);
 
 	//sdpRegisterL2cap(port);
-
-	connectClient();
-
-	return client;
+	waitClientConnect();
 }
 
 string buffer;
@@ -204,9 +209,50 @@ string read_server(int client) {
 		else
 			printf("Sudden error caused disconnect.\n");
 		close(client);
-		connectClient();
+		waitClientConnect();
 		return "";
 	}
+}
+
+string bt_poll_read(int client, int time)
+{
+	string readtxt = "";
+	rv = poll(&rd_pollfd, 1, time);
+	if (rv == -1) 
+	{
+		perror("poll"); // error occurred in poll()
+		cout << "error occured in poll"<<endl;
+	} 
+	/*else if (rv == 0) 
+	{
+		printf("Timeout occurred!  No data after 3.5 seconds.\n");
+	} */
+	else 
+	{
+		// check for events on s1:
+		if (rd_pollfd.revents & POLLIN) 
+		{
+			if(client > 0)
+				readtxt = read_server(client);
+			else
+				acceptClientConnection();
+		}
+		else if (rd_pollfd.revents & POLLHUP)
+		{
+			if(client != -1)
+			{
+				cout <<"Bluetooth disconnected."<<endl;
+				close(client);
+				waitClientConnect();
+			}
+		}
+		else if (rd_pollfd.revents & POLLERR)
+		{
+			cout<<"poll err"<<endl;
+		}
+	}
+
+	return readtxt;
 }
 
 void write_server(int client, char *message) {
@@ -218,6 +264,11 @@ void write_server(int client, char *message) {
 	if (bytes_sent > 0) {
 		printf("sent [%s]\n", messageArr);
 	}
+}
+
+int getbtClient()
+{
+	return client;
 }
 
 Document msgHandler(string s)
@@ -248,20 +299,4 @@ Document msgHandler(string s)
 	}
 
 	return d;
-}
-
-int main()
-{
-	int client = init_server();	
-	while(1)
-	{
-		string temp = read_server(client);
-
-		if(!temp.empty())
-		{
-			cout << temp <<endl;
-			msgHandler(temp);
-		}
-	}
-	return 0;
 }

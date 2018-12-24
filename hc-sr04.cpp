@@ -81,7 +81,7 @@ void getAllDistance()
     {
         if(ult_rdy[i] == 1)
         {
-            cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
+            //cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
             //cout <<"start time: " <<startTime <<endl;
             //cout <<"end time: "<< endTime <<endl<<endl;
             ++ult_rdy[i];

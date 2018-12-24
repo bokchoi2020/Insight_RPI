@@ -1,15 +1,11 @@
-all: createdir ultrasound bluetooth display
+all: createdir main
 createdir:
 	mkdir -p bin
-ultrasound:
-	g++ -g -o bin/ultrasnd.out hc-sr04.cpp -lwiringPi
-bluetooth:
-	g++ -g -o bin/bluetooth.out bluetooth.c -lbluetooth -Iinclude
-display:
-	g++ -Wall -g -o bin/display.out display.cpp `pkg-config --cflags --libs gtk+-3.0`
+main:
+	g++ -g -o bin/insight.out main.cpp hc-sr04.cpp display.cpp bluetooth.c -lwiringPi -lbluetooth -Iinclude `pkg-config --cflags --libs gtk+-3.0`
 clean:
 	rm -rf bin/
 run:
-	bin/ultrasnd.out
+	bin/insight.out
 debug:
-	nemiver bin/ultrasnd.out
+	nemiver bin/insight.out
