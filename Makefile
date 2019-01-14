@@ -38,4 +38,14 @@ rund: initdisplay copydisplay
 autodisplay:
 	sudo echo "fbtft_device custom name=fb_ili9341 gpios=reset:25,dc:24,led:18 speed=90000000 rotate=90 bgr=1">>/etc/modules
 
-
+all: createdir main
+createdir:
+	mkdir -p bin
+main:
+	g++ -g -o bin/insight.out main.cpp hc-sr04.cpp display.cpp bluetooth.c -lwiringPi -lbluetooth -Iinclude `pkg-config --cflags --libs gtk+-3.0`
+clean:
+	rm -rf bin/
+run:
+	bin/insight.out
+debug:
+	nemiver bin/insight.out
