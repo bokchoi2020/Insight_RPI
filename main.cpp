@@ -50,10 +50,10 @@ int main(int argc, char *argv[])
         //poll bluetooth
         string btMsg = bt_poll_read(btClient, 60);
         //parse received message
-		if(!btMsg.empty())
-		{
-			cout << btMsg <<endl;
-			msgStruct msg = msgHandler(btMsg);
+        if(!btMsg.empty())
+        {
+            cout << btMsg <<endl;
+            msgStruct msg = msgHandler(btMsg);
             //update display according to message.
             switch(msg.type)
             {
