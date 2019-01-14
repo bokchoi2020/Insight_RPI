@@ -1,3 +1,4 @@
+all: createdir main
 initdisplay:
 	sudo modprobe fbtft_device custom name=fb_ili9341 gpios=reset:25,dc:24,led:18 speed=90000000 rotate=90 bgr=1
 
@@ -7,10 +8,7 @@ startdisplay:
 
 copydisplay:
 	sleep 2
-	Firmware/fbcp&
-
-startserver:
-	./server.sh&
+	fbcp&
 
 setupbluetooth:
 	#Make bluetooth start in RFCOMM/SPP mode
@@ -36,9 +34,10 @@ setupbluetooth:
 rund: initdisplay copydisplay
 
 autodisplay:
-	sudo echo "fbtft_device custom name=fb_ili9341 gpios=reset:25,dc:24,led:18 speed=90000000 rotate=90 bgr=1">>/etc/modules
+	sudo echo "options fbtft_device custom name=fb_ili9341 speed=90000000 gpios=reset:25,dc:24,led:18 rotate=270 bgr=1">/etc/modprobe.d/fbtft.conf 
+	sudo echo -en "spi-bcm2835\nfbtft_device" > /etc/modules-load.d/fbtft.conf 
+	sudo echo -en "Section \"Device\"\n  Identifier \"myfb\"\n  Driver \"fbdev\"\n  Option \"fbdev\" \"/dev/fb1\"\nEndSection">/usr/share/X11/xorg.conf.d/99-fbdev.conf"
 
-all: createdir main
 createdir:
 	mkdir -p bin
 main:
