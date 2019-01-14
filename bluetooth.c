@@ -9,6 +9,8 @@
 #include <bluetooth/rfcomm.h>
 #include "bluetooth.h"
 #include <sys/poll.h>
+#include <iomanip> // setprecision
+#include <sstream>
 
 #define READ_SIZE 1024
 
@@ -31,6 +33,7 @@ bdaddr_t bADDR_LOCAL = {0, 0, 0, 0xff, 0xff, 0xff};
 struct sockaddr_rc loc_addr = { 0 }, rem_addr = { 0 };
 struct pollfd rd_pollfd = { 0 };
 int sock, client = -1, rv;
+string buffer;
 
 sdp_session_t *register_service(uint8_t rfcomm_channel) {
 
@@ -181,7 +184,6 @@ void init_server() {
 	waitClientConnect();
 }
 
-string buffer;
 string read_server(int client) {
 	// read data from the client
 	char input[READ_SIZE] = { 0 };
@@ -271,13 +273,15 @@ int getbtClient()
 	return client;
 }
 
-Document msgHandler(string s)
+msgStruct msgHandler(string s)
 {
 	Document d;
+	msgStruct msg = {.type = msgERR, .text = ""};
+
 	if(d.Parse(s.c_str()).HasParseError())
 	{
 		cout<<"JSON parse error"<<endl;
-		return NULL;
+		return msg;
 	}
 	Value& vtype = d["messageType"];
 
@@ -293,10 +297,38 @@ Document msgHandler(string s)
 		{
 			fputs(s.c_str(), fp);
 			fclose(fp);
+			msg.type = msgSET;
 		}
 		else
 			cout << "Error. Could not create file." <<endl;
 	}
+	else if(type == "updateDir")
+	{
+		vtype = d["distanceUtil"];
+		int dist = vtype.GetInt();
 
-	return d;
+		vtype = d["instruction"];
+		string instruction = vtype.GetString();
+		vtype = d["maneuver"];
+		string dir = vtype.GetString();
+		if(dir=="f") { dir = "↑"; }
+		else if(dir =="l") { dir = "↰"; }
+		else if(dir =="r") { dir = "↱"; }
+		else if(dir =="ul") { dir = "↶"; }
+		else if(dir =="ur") { dir ="↷"; }
+
+		msg.type = msgDIR;
+		msg.text = dir + " " + to_string(dist) +"m " + instruction;
+	}
+	else if(type == "updateSpeed")
+	{
+		vtype = d["speed"];
+		float speed = vtype.GetFloat();
+		stringstream stream;
+		stream << fixed << setprecision(0) << speed;
+		msg.type = msgSPD;
+		msg.text = stream.str() + " km/h";
+	}
+
+	return msg;
 }

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int ult_echo [N_SENSOR] = { 27, 22 };
+int ult_echo [N_SENSOR] = { 27, 22 , 6};
 int ult_rdy[N_SENSOR];
 float u_distance[N_SENSOR];
 
@@ -40,7 +40,12 @@ void isrULT1()
     calcUltDistance(1);
 }
 
-void (* pISR[2])() = {isrULT0, isrULT1};
+void isrULT2()
+{
+    calcUltDistance(2);
+}
+
+void (*pISR[N_SENSOR])() = {isrULT0, isrULT1, isrULT2};
 
 void ultsetup() 
 {
@@ -88,14 +93,15 @@ void getAllDistance()
         } 
     }
     //only send a new request once all sensors are ready
-    if(ult_rdy[0] == 2 && ult_rdy[1] == 2)
+    if(ult_rdy[0] == 2 && ult_rdy[1] == 2 && ult_rdy[2])
     {
         ult_rdy[0] = 0;
         ult_rdy[1] = 0;
+        ult_rdy[2] = 0;
         sendULTReq();
     }
 
-    if(u_distance[0] < 20 || u_distance[1] < 20)
+    if(u_distance[0] < 20 || u_distance[1] < 20 || u_distance[2] < 20)
             digitalWrite(LED, HIGH);
     else
             digitalWrite(LED, LOW);

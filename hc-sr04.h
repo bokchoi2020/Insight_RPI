@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #define ULT_REQ 17
 #define LED 5
-#define N_SENSOR 2
+#define N_SENSOR 3
 
 void ultsetup();
 void sendULTReq();

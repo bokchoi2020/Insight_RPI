@@ -21,9 +21,10 @@ SDP: Service Discovery Protocol
 Works by creating a socket and binding to a port. 
 Listens on the port and waits for an incoming connection.
 
-May need to use non-blocking I/O in order to use in conjuction with ultrasound.
+Uses non-blocking I/O in order to use in conjuction with ultrasound.
 http://beej.us/guide/bgnet/html/single/bgnet.html#blocking
-Requires epoll() or select().
+http://beej.us/guide/bgnet/html/single/bgnet.html#pollman
+Requires poll(), epoll(), or select().
 
 Another method is to use multi process IPC with pipes or posix multihreading.
 
@@ -32,4 +33,4 @@ Credits to:
 https://github.com/Tencent/rapidjson/
 
 Header exclusive library. Can be found in the "include" folder.
-Planning to use for parsing messages sent over bluetooth.
+Used for parsing messages sent over bluetooth.

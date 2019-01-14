@@ -1,4 +1,5 @@
 #include "display.h"
+#include <time.h>  
 
 GtkBuilder      *builder;
 GtkWidget       *window;
@@ -6,31 +7,31 @@ GtkWidget       *boxVert;
 GtkWidget       *labelDir;
 GtkWidget       *labelTime;
 GtkWidget       *labelDest;
+GtkWidget       *labelSpeed;
 GtkWidget       *labelETA;
+GtkWidget       *imgRec;
+GtkWidget       *imgBluetooth;
 
 void setLabel(GtkWidget * a, string text)
 {
     gtk_label_set_text(GTK_LABEL(a), text.c_str());
 }
+void setDir(string dir) { setLabel(labelDir, dir); }
+void setTime(string time) { setLabel(labelTime, time); }
+void setDest(string dest) { setLabel(labelDest, dest); }
+void setSpeed (string speed) { setLabel(labelSpeed, speed); }
+void setETA (string ETA){ setLabel(labelETA, ETA); }
+void setBtImg(bool BtOn){ gtk_image_set_from_file (GTK_IMAGE(imgBluetooth), BtOn?"bt_on.png":"bt_off.png");}
 
-void setDir(string dir)
+gint timeout_callback (gpointer data)
 {
-    setLabel(labelDir, dir);
-}
+    time_t rawtime;
+    time (&rawtime);
+    string time = ctime (&rawtime);
+    time = time.substr(11, 5);
+    setTime(time);
 
-void setTime(string time)
-{
-    setLabel(labelTime, time);
-}
-
-void setDest(string dest)
-{
-    setLabel(labelDest, dest);
-}
-
-void setETA (string ETA)
-{
-    setLabel(labelETA, ETA);
+    return 1;
 }
 
 int setupGTKDisplay(int argc, char *argv[])
@@ -52,14 +53,26 @@ int setupGTKDisplay(int argc, char *argv[])
     labelDir = GTK_WIDGET(gtk_builder_get_object(builder, "labelDir"));
     labelTime = GTK_WIDGET(gtk_builder_get_object(builder, "labelTime")); 
     labelDest = GTK_WIDGET(gtk_builder_get_object(builder, "labelDest"));
+    labelSpeed = GTK_WIDGET(gtk_builder_get_object(builder, "labelSpeed"));
     labelETA = GTK_WIDGET(gtk_builder_get_object(builder, "labelETA"));
+    imgRec = GTK_WIDGET(gtk_builder_get_object(builder, "imgRec"));
+    imgBluetooth = GTK_WIDGET(gtk_builder_get_object(builder, "imgBluetooth"));
 
 
     g_object_unref(builder);
-    GdkColor black = {0, 0x0000, 0x0000, 0x0000};
-    GdkColor white = {0, 0xFFFF, 0xFFFF, 0xFFFF};
-    gtk_widget_modify_bg(boxVert, GTK_STATE_NORMAL, &black); 
-    gtk_widget_modify_fg(boxVert, GTK_STATE_NORMAL, &white);
+    GdkRGBA black = {0x0000, 0x0000, 0x0000, 1};
+    GdkRGBA white = {0xFFFF, 0xFFFF, 0xFFFF, 1};
+    gtk_widget_override_background_color(boxVert, GTK_STATE_FLAG_NORMAL, &black); 
+    gtk_widget_override_color(boxVert, GTK_STATE_FLAG_NORMAL, &white);
+    //set labels
+    setDir("");
+    setETA("");
+    setSpeed("");
+    setDest("Connect your device.");
+    setBtImg(false);
+    //update time every second.
+    g_timeout_add (1000,timeout_callback, NULL);
+
 
     gtk_widget_show(window);
     //gtk_main();
