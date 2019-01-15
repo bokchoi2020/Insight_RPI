@@ -3,6 +3,8 @@
 
 GtkBuilder      *builder;
 GtkWidget       *window;
+GtkCssProvider  *cssProvider;
+
 GtkWidget       *boxVert;
 GtkWidget       *labelDir;
 GtkWidget       *labelTime;
@@ -60,10 +62,13 @@ int setupGTKDisplay(int argc, char *argv[])
 
 
     g_object_unref(builder);
-    GdkRGBA black = {0x0000, 0x0000, 0x0000, 1};
-    GdkRGBA white = {0xFFFF, 0xFFFF, 0xFFFF, 1};
-    gtk_widget_override_background_color(boxVert, GTK_STATE_FLAG_NORMAL, &black); 
-    gtk_widget_override_color(boxVert, GTK_STATE_FLAG_NORMAL, &white);
+    
+    gtk_widget_set_name (boxVert, "boxVert");
+    cssProvider = gtk_css_provider_new();
+    gtk_css_provider_load_from_path(cssProvider, "dark.css", NULL);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+                               GTK_STYLE_PROVIDER(cssProvider),
+                               GTK_STYLE_PROVIDER_PRIORITY_USER);
     //set labels
     setDir("");
     setETA("");

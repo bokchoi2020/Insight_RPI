@@ -6,13 +6,14 @@
 
 using namespace std;
 
-int ult_echo [N_SENSOR] = { 27, 22 , 6};
+int ult_echo [N_SENSOR] = { 27, 22 , 6 };
 int ult_rdy[N_SENSOR];
 float u_distance[N_SENSOR];
 
 uint32_t startTime[N_SENSOR];
 uint32_t endTime[N_SENSOR];
 bool falling_flag[N_SENSOR];
+bool ledON = false;
 
 inline void calcUltDistance(int sensor)
 {
@@ -93,7 +94,7 @@ void getAllDistance()
         } 
     }
     //only send a new request once all sensors are ready
-    if(ult_rdy[0] == 2 && ult_rdy[1] == 2 && ult_rdy[2])
+    if(ult_rdy[0] == 2 && ult_rdy[1] == 2 && ult_rdy[2] == 2)
     {
         ult_rdy[0] = 0;
         ult_rdy[1] = 0;
@@ -101,8 +102,25 @@ void getAllDistance()
         sendULTReq();
     }
 
-    if(u_distance[0] < 20 || u_distance[1] < 20 || u_distance[2] < 20)
-            digitalWrite(LED, HIGH);
-    else
-            digitalWrite(LED, LOW);
+    //check if any of the sensors are less than 20cm safety zone.
+    bool ledReq = false;
+    for(int i = 0; i < N_SENSOR; i++)
+    {
+        if(u_distance[i] < 20 )
+        {
+            ledReq = true;
+            break;
+        }
+    }
+
+    if(!ledON && ledReq)
+    {
+        digitalWrite(LED, HIGH);
+        ledON = true;
+    }
+    else if(ledON && !ledReq)
+    {
+        digitalWrite(LED, LOW); 
+        ledON = false;
+    }
 }
