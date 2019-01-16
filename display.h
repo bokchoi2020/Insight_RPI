@@ -2,7 +2,6 @@
 #define DISPLAY_H_
 
 #include <string>
-#include <gtk/gtk.h>
 
 using namespace std;
 
@@ -13,5 +12,6 @@ void setSpeed (string speed);
 void setETA (string ETA);
 int setupGTKDisplay(int argc, char *argv[]);
 void setBtImg(bool BtOn);
-
+void setTheme(string name);
+void updateDisplay();
 #endif

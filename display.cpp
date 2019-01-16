@@ -1,4 +1,5 @@
 #include "display.h"
+#include <gtk/gtk.h>
 #include <time.h>  
 
 GtkBuilder      *builder;
@@ -24,6 +25,7 @@ void setDest(string dest) { setLabel(labelDest, dest); }
 void setSpeed (string speed) { setLabel(labelSpeed, speed); }
 void setETA (string ETA){ setLabel(labelETA, ETA); }
 void setBtImg(bool BtOn){ gtk_image_set_from_file (GTK_IMAGE(imgBluetooth), BtOn?"bt_on.png":"bt_off.png");}
+void setTheme(string name){ gtk_css_provider_load_from_path(cssProvider, name.c_str(), NULL);}
 
 gint timeout_callback (gpointer data)
 {
@@ -82,4 +84,10 @@ int setupGTKDisplay(int argc, char *argv[])
     gtk_widget_show(window);
     //gtk_main();
     return 0;
+}
+
+void updateDisplay()
+{
+    while (gtk_events_pending())
+            gtk_main_iteration();
 }

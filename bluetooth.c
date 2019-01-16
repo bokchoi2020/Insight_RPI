@@ -9,8 +9,6 @@
 #include <bluetooth/rfcomm.h>
 #include "bluetooth.h"
 #include <sys/poll.h>
-#include <iomanip> // setprecision
-#include <sstream>
 
 #define READ_SIZE 1024
 
@@ -50,80 +48,73 @@ sdp_session_t *register_service(uint8_t rfcomm_channel) {
     * Regardless of the UUID used, it must match the one that the Armatus Android app is searching
     * for.
     */
+
+    //**desribe sdp service**
     uint32_t svc_uuid_int[] = { 0xEE3596AC, 0xE811A784, 0x7AFAC0AD, 0xBCBE1BE0 };
     const char *service_name = "Insight Bluetooth server";
     const char *svc_dsc = "A HERMIT server that interfaces with the Insight Android app";
     const char *service_prov = "Insight";
 
-    uuid_t root_uuid, l2cap_uuid, rfcomm_uuid, svc_uuid,
-           svc_class_uuid;
-    sdp_list_t *l2cap_list = 0,
-                *rfcomm_list = 0,
-                 *root_list = 0,
-                  *proto_list = 0,
-                   *access_proto_list = 0,
-                    *svc_class_list = 0,
-                     *profile_list = 0;
-    sdp_data_t *channel = 0;
-    sdp_profile_desc_t profile;
-    sdp_record_t record = { 0 };
-    sdp_session_t *session = 0;
+    uuid_t root_uuid, l2cap_uuid, rfcomm_uuid, svc_uuid;
+    sdp_list_t *l2cap_list = 0, 
+               *rfcomm_list = 0,
+               *root_list = 0,
+               *proto_list = 0, 
+               *access_proto_list = 0;
+    sdp_data_t *channel = 0, *psm = 0;
+
+    sdp_record_t *record = sdp_record_alloc();
 
     // set the general service ID
-    sdp_uuid128_create(&svc_uuid, &svc_uuid_int);
-    sdp_set_service_id(&record, svc_uuid);
-
+    sdp_uuid128_create( &svc_uuid, &svc_uuid_int );
+    sdp_set_service_id( record, svc_uuid );
+    
+    //print uuid
     char str[256] = "";
     sdp_uuid2strn(&svc_uuid, str, 256);
     printf("Registering UUID %s\n", str);
 
-    // set the service class
-    sdp_uuid16_create(&svc_class_uuid, SERIAL_PORT_SVCLASS_ID);
-    svc_class_list = sdp_list_append(0, &svc_class_uuid);
-    sdp_set_service_classes(&record, svc_class_list);
-
-    // set the Bluetooth profile information
-    sdp_uuid16_create(&profile.uuid, SERIAL_PORT_PROFILE_ID);
-    profile.version = 0x0100;
-    profile_list = sdp_list_append(0, &profile);
-    sdp_set_profile_descs(&record, profile_list);
-
     // make the service record publicly browsable
     sdp_uuid16_create(&root_uuid, PUBLIC_BROWSE_GROUP);
     root_list = sdp_list_append(0, &root_uuid);
-    sdp_set_browse_groups(&record, root_list);
+    sdp_set_browse_groups( record, root_list );
 
     // set l2cap information
     sdp_uuid16_create(&l2cap_uuid, L2CAP_UUID);
-    l2cap_list = sdp_list_append(0, &l2cap_uuid);
-    proto_list = sdp_list_append(0, l2cap_list);
+    l2cap_list = sdp_list_append( 0, &l2cap_uuid );
+    proto_list = sdp_list_append( 0, l2cap_list );
 
-    // register the RFCOMM channel for RFCOMM sockets
+    // set rfcomm information
     sdp_uuid16_create(&rfcomm_uuid, RFCOMM_UUID);
     channel = sdp_data_alloc(SDP_UINT8, &rfcomm_channel);
-    rfcomm_list = sdp_list_append(0, &rfcomm_uuid);
-    sdp_list_append(rfcomm_list, channel);
-    sdp_list_append(proto_list, rfcomm_list);
+    rfcomm_list = sdp_list_append( 0, &rfcomm_uuid );
+    sdp_list_append( rfcomm_list, channel );
+    sdp_list_append( proto_list, rfcomm_list );
 
-    access_proto_list = sdp_list_append(0, proto_list);
-    sdp_set_access_protos(&record, access_proto_list);
+    // attach protocol information to service record
+    access_proto_list = sdp_list_append( 0, proto_list );
+    sdp_set_access_protos( record, access_proto_list );
 
     // set the name, provider, and description
-    sdp_set_info_attr(&record, service_name, service_prov, svc_dsc);
+    sdp_set_info_attr(record, service_name, service_prov, svc_dsc);
 
-    // connect to the local SDP server, register the service record,
-    // and disconnect
+
+    //**register the service**
+    int err = 0;
+    sdp_session_t *session = 0;
+
+    // connect to the local SDP server, register the service record, and 
+    // disconnect
+    //session = sdp_connect( BDADDR_ANY, BDADDR_LOCAL, SDP_RETRY_IF_BUSY );
     session = sdp_connect(&bADDR_ANY, &bADDR_LOCAL, SDP_RETRY_IF_BUSY);
-    sdp_record_register(session, &record, 0);
+    err = sdp_record_register(session, record, 0);
 
     // cleanup
-    sdp_data_free(channel);
-    sdp_list_free(l2cap_list, 0);
-    sdp_list_free(rfcomm_list, 0);
-    sdp_list_free(root_list, 0);
-    sdp_list_free(access_proto_list, 0);
-    sdp_list_free(svc_class_list, 0);
-    sdp_list_free(profile_list, 0);
+    sdp_data_free( channel );
+    sdp_list_free( l2cap_list, 0 );
+    sdp_list_free( rfcomm_list, 0 );
+    sdp_list_free( root_list, 0 );
+    sdp_list_free( access_proto_list, 0 );
 
     return session;
 }
@@ -191,9 +182,9 @@ string read_server(int client) {
     bytes_read = read(client, input, sizeof(input));
     if (bytes_read > 0) 
     {
-        printf("received [%s]\n", input);
+        //printf("received [%s]\n", input);
         buffer += input;
-        cout<<"buffer contains" << buffer <<endl;
+        //cout<<"buffer contains" << buffer <<endl;
         if(input[bytes_read-1] == 0)
         {
             string message = buffer;
@@ -271,64 +262,4 @@ void write_server(int client, char *message) {
 int getbtClient()
 {
     return client;
-}
-
-msgStruct msgHandler(string s)
-{
-    Document d;
-    msgStruct msg = {.type = msgERR, .text = ""};
-
-    if(d.Parse(s.c_str()).HasParseError())
-    {
-        cout<<"JSON parse error"<<endl;
-        return msg;
-    }
-    Value& vtype = d["messageType"];
-
-    string type = vtype.GetString();
-    
-    if(type == "updateSetting")
-    {
-        FILE *fp;
-
-        cout << "Creating file." << endl; 
-        fp = fopen("settings.json", "w");
-        if(fp != NULL)
-        {
-            fputs(s.c_str(), fp);
-            fclose(fp);
-            msg.type = msgSET;
-        }
-        else
-            cout << "Error. Could not create file." <<endl;
-    }
-    else if(type == "updateDir")
-    {
-        vtype = d["distanceUtil"];
-        int dist = vtype.GetInt();
-
-        vtype = d["instruction"];
-        string instruction = vtype.GetString();
-        vtype = d["maneuver"];
-        string dir = vtype.GetString();
-        if(dir=="f") { dir = "↑"; }
-        else if(dir =="l") { dir = "↰"; }
-        else if(dir =="r") { dir = "↱"; }
-        else if(dir =="ul") { dir = "↶"; }
-        else if(dir =="ur") { dir ="↷"; }
-
-        msg.type = msgDIR;
-        msg.text = dir + " " + to_string(dist) +"m " + instruction;
-    }
-    else if(type == "updateSpeed")
-    {
-        vtype = d["speed"];
-        float speed = vtype.GetFloat();
-        stringstream stream;
-        stream << fixed << setprecision(0) << speed;
-        msg.type = msgSPD;
-        msg.text = stream.str() + " km/h";
-    }
-
-    return msg;
 }

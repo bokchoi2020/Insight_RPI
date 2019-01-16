@@ -47,7 +47,7 @@ autodisplay:
 createdir:
 	mkdir -p bin
 main:
-	g++ -O2 -o bin/insight.out main.cpp hc-sr04.cpp display.cpp bluetooth.c -lwiringPi -lbluetooth -Iinclude `pkg-config --cflags --libs gtk+-3.0`
+	g++ -O2 -o bin/insight.out main.cpp hc-sr04.cpp display.cpp bluetooth.c msgparser.cpp -lwiringPi -lbluetooth -Iinclude `pkg-config --cflags --libs gtk+-3.0`
 clean:
 	rm -rf bin/
 run:

@@ -2,6 +2,7 @@
 #include "hc-sr04.h"
 #include "display.h"
 #include "bluetooth.h"
+#include "msgparser.h"
 
 using namespace std;
 
@@ -11,7 +12,6 @@ int main(int argc, char *argv[])
 {
     //setup and start ultrasound
     ultsetup();
-    sendULTReq();
     
     //setup and start display
     setupGTKDisplay(argc, argv);
@@ -19,11 +19,14 @@ int main(int argc, char *argv[])
 
     //setup and start bluetooth
     init_server();	
-
+    int i = 0;
     //main loop
     while(1)
     {
-        //read distances
+        //i++;
+        //if (i%10000 == 0) 
+        //cout<<"looped"<<endl;
+        //read distances        
         getAllDistance();
         
         int btClient = getbtClient();
@@ -53,7 +56,7 @@ int main(int argc, char *argv[])
         if(!btMsg.empty())
         {
             cout << btMsg <<endl;
-            msgStruct msg = msgHandler(btMsg);
+            msgStruct msg = msgParser(btMsg);
             //update display according to message.
             switch(msg.type)
             {
@@ -66,8 +69,7 @@ int main(int argc, char *argv[])
         }
 
         //update display
-        while (gtk_events_pending())
-            gtk_main_iteration();
+        updateDisplay();
     }
     return 0;
 }
