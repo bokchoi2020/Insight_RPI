@@ -9,8 +9,13 @@
 using namespace std;
 
 const int ult_echo [N_SENSOR] = { 27, 22 , 6 };
+const int danger_speed = 5;
+const int danger_speed_distance = 200;
+const int safety_zone_radius = 20;
+
 volatile int ult_rdy[N_SENSOR];
 volatile float u_distance[N_SENSOR];
+volatile float last_distance[N_SENSOR];
 
 volatile uint32_t startTime[N_SENSOR];
 volatile uint32_t endTime[N_SENSOR];
@@ -76,8 +81,10 @@ void ultsetup()
         pullUpDnControl(ult_echo[i],PUD_DOWN);
         // set ISRs
         wiringPiISR(ult_echo[i], INT_EDGE_BOTH, pISR[i]);
+        u_distance[i] = 100;
+        last_distance[i] = 100;
     }
-    
+        
     //cout << "IO, ISR setup complete. " << endl;
     delay(30);
     sendULTReq();
@@ -91,6 +98,8 @@ void getAllDistance()
     {
         if(ult_rdy[i] == 1)
         {
+            last_distance[i] = u_distance[i];
+
             u_distance[i] = (endTime[i] - startTime[i])/58.0;
             cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
             //cout <<"start time: " <<startTime <<endl;
@@ -116,11 +125,26 @@ void getAllDistance()
         sendULTReq();
     }
 
-    //check if any of the sensors are less than 20cm safety zone.
+
+    /*
+    The LED lights up if at least 1 of 2 conditions is met:
+    1. any of the sensors reads less than safety_zone_radius (object is within safety zone).
+    2. an object continually moves toward the rider at <2m away
+
+    Notes:
+    - The value of danger_speed depends on how frequently data is read from the sensors,
+        and should be adjusted accordingly
+    - obviously we can have a more sophisticated high-pass filter if we recorded
+        more of the previous values, but the overhead of storing (and shifting everything
+        for the new values) might be undesirable
+    */
+
     bool ledReq = false;
     for(int i = 0; i < N_SENSOR; i++)
     {
-        if(u_distance[i] < 20 )
+        cout << "last dist: " << last_distance[i] << endl;
+        cout << "new dist:  " << u_distance[i] << endl;
+        if(u_distance[i] < safety_zone_radius || (last_distance[i] < danger_speed_distance && last_distance[i] - u_distance[i] > danger_speed))
         {
             ledReq = true;
             break;
