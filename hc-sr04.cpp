@@ -27,12 +27,13 @@ inline void calcUltDistance(int sensor)
 {
     if(digitalRead(ult_echo[sensor]))
     {
+        ult_rdy[sensor]  = 1;
         startTime[sensor] = micros();
     }
-    else
+    else if(ult_rdy[sensor] = 1)
     {
         endTime[sensor] = micros();
-        ult_rdy[sensor] = 1;
+        ult_rdy[sensor] = 2;
     }
 }
 
@@ -83,6 +84,7 @@ void ultsetup()
         wiringPiISR(ult_echo[i], INT_EDGE_BOTH, pISR[i]);
         u_distance[i] = 100;
         last_distance[i] = 100;
+        ult_rdy[i] = 0;
     }
         
     //cout << "IO, ISR setup complete. " << endl;
@@ -96,7 +98,7 @@ void getAllDistance()
 
     for(int i = 0; i < N_SENSOR; i++)
     {
-        if(ult_rdy[i] == 1)
+        if(ult_rdy[i] == 2)
         {
             last_distance[i] = u_distance[i];
 
@@ -104,13 +106,13 @@ void getAllDistance()
             cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
             //cout <<"start time: " <<startTime <<endl;
             //cout <<"end time: "<< endTime <<endl<<endl;
-            ult_rdy[i] = 2;
+            ult_rdy[i] = 3;
         } 
     }
     
     uint32_t curTime = millis();
     //only send a new request once all sensors are ready or if no activity for 200ms.
-    if(ult_rdy[0] == 2 && ult_rdy[1] == 2 && ult_rdy[2] == 2 || (curTime - lastCallTime) > 200)
+    if(ult_rdy[0] == 3 && ult_rdy[1] == 3 && ult_rdy[2] == 3 || (curTime - lastCallTime) > 200)
     {
         //if less than 60ms since last request we wait
         //cout <<"last call time:"<<lastCallTime <<endl;
@@ -142,8 +144,8 @@ void getAllDistance()
     bool ledReq = false;
     for(int i = 0; i < N_SENSOR; i++)
     {
-        cout << "last dist: " << last_distance[i] << endl;
-        cout << "new dist:  " << u_distance[i] << endl;
+        cout << "last dist: " << last_distance[i] << "sensor: " << i << endl;
+        cout << "new dist:  " << u_distance[i] << "sensor: " << i << endl;
         if(u_distance[i] < safety_zone_radius || (last_distance[i] < danger_speed_distance && last_distance[i] - u_distance[i] > danger_speed))
         {
             ledReq = true;
