@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const int ult_echo [N_SENSOR] = { 27, 22 , 6 };
+const int ult_echo [N_SENSOR] = { 22, 6 }; //27, 22 , 6 };
 const int danger_speed = 5;
 const int danger_speed_distance = 200;
 const int safety_zone_radius = 20;
@@ -52,7 +52,7 @@ void isrULT2()
     calcUltDistance(2);
 }
 
-void (*pISR[N_SENSOR])() = {isrULT0, isrULT1, isrULT2};
+void (*pISR[N_SENSOR])() = {isrULT0, isrULT1};//, isrULT2};
 
 void sendULTReq() 
 {
@@ -92,10 +92,9 @@ void ultsetup()
     sendULTReq();
 }
 
-void getAllDistance()
+void getAllDistance(bool * warn)
 {
     //TODO: handle micro 74 minute overflow
-
     for(int i = 0; i < N_SENSOR; i++)
     {
         if(ult_rdy[i] == 2)
@@ -141,26 +140,29 @@ void getAllDistance()
         for the new values) might be undesirable
     */
 
-    bool ledReq = false;
+    //bool ledReq = false;
     for(int i = 0; i < N_SENSOR; i++)
     {
-        cout << "last dist: " << last_distance[i] << "sensor: " << i << endl;
-        cout << "new dist:  " << u_distance[i] << "sensor: " << i << endl;
+        //cout << "last dist: " << last_distance[i] << "sensor: " << i << endl;
+        //cout << "new dist:  " << u_distance[i] << "sensor: " << i << endl;
         if(u_distance[i] < safety_zone_radius || (last_distance[i] < danger_speed_distance && last_distance[i] - u_distance[i] > danger_speed))
         {
-            ledReq = true;
-            break;
+            //ledReq = true;
+            warn[i] = true;
+            //break;
         }
+        else
+            warn[i] = false;
     }
 
-    if(!ledON && ledReq)
-    {
-        digitalWrite(LED, HIGH);
-        ledON = true;
-    }
-    else if(ledON && !ledReq)
-    {
-        digitalWrite(LED, LOW); 
-        ledON = false;
-    }
+    // if(!ledON && ledReq)
+    // {
+    //     digitalWrite(LED, HIGH);
+    //     ledON = true;
+    // }
+    // else if(ledON && !ledReq)
+    // {
+    //     digitalWrite(LED, LOW); 
+    //     ledON = false;
+    // }
 }

@@ -9,11 +9,17 @@ GtkCssProvider  *cssProvider;
 GtkWidget       *boxVert;
 GtkWidget       *labelDir;
 GtkWidget       *labelTime;
-GtkWidget       *labelDest;
+// GtkWidget       *labelDest;
 GtkWidget       *labelSpeed;
-GtkWidget       *labelETA;
+//GtkWidget       *labelETA;
 GtkWidget       *imgRec;
 GtkWidget       *imgBluetooth;
+
+GtkWidget       *warnLeft;
+GtkWidget       *warnRight;
+
+bool lastLeft = true;
+bool lastRight = true;
 
 void setLabel(GtkWidget * a, string text)
 {
@@ -21,11 +27,23 @@ void setLabel(GtkWidget * a, string text)
 }
 void setDir(string dir) { setLabel(labelDir, dir); }
 void setTime(string time) { setLabel(labelTime, time); }
-void setDest(string dest) { setLabel(labelDest, dest); }
+//void setDest(string dest) { setLabel(labelDest, dest); }
 void setSpeed (string speed) { setLabel(labelSpeed, speed); }
-void setETA (string ETA){ setLabel(labelETA, ETA); }
-void setBtImg(bool BtOn){ gtk_image_set_from_file (GTK_IMAGE(imgBluetooth), BtOn?"bt_on.png":"bt_off.png");}
+//void setETA (string ETA){ setLabel(labelETA, ETA); }
+void setBtImg(bool BtOn){ gtk_image_set_from_file (GTK_IMAGE(imgBluetooth), BtOn?"/home/pi/Insight_RPI/bt_on.png":"/home/pi/Insight_RPI/bt_off.png");}
 void setTheme(string name){ gtk_css_provider_load_from_path(cssProvider, name.c_str(), NULL);}
+void setWarnLeft(bool warn){
+    if(warn != lastLeft){
+        gtk_image_set_from_file (GTK_IMAGE(warnLeft), warn?"/home/pi/Insight_RPI/warning-small.png":"/home/pi/Insight_RPI/blank.png");
+        lastLeft = warn;
+    }
+}
+void setWarnRight(bool warn){
+    if(warn != lastRight){
+       gtk_image_set_from_file (GTK_IMAGE(warnRight), warn?"/home/pi/Insight_RPI/warning-small.png":"/home/pi/Insight_RPI/blank.png");
+       lastRight = warn;
+    }
+}
 
 gint timeout_callback (gpointer data)
 {
@@ -43,7 +61,7 @@ int setupGTKDisplay(int argc, char *argv[])
     GError     *error = NULL;
     gtk_init(&argc, &argv);
     builder = gtk_builder_new();
-    if( ! gtk_builder_add_from_file( builder, "UI.glade", &error ) )
+    if( ! gtk_builder_add_from_file( builder, "/home/pi/Insight_RPI/UI.glade", &error ) )
     {
             g_warning( "%s", error->message );
             g_free( error );
@@ -56,27 +74,32 @@ int setupGTKDisplay(int argc, char *argv[])
    // g_signal_connect (window, "delete_event", G_CALLBACK (on_MainWindow_destroy_event), NULL);
     labelDir = GTK_WIDGET(gtk_builder_get_object(builder, "labelDir"));
     labelTime = GTK_WIDGET(gtk_builder_get_object(builder, "labelTime")); 
-    labelDest = GTK_WIDGET(gtk_builder_get_object(builder, "labelDest"));
+    //labelDest = GTK_WIDGET(gtk_builder_get_object(builder, "labelDest"));
     labelSpeed = GTK_WIDGET(gtk_builder_get_object(builder, "labelSpeed"));
-    labelETA = GTK_WIDGET(gtk_builder_get_object(builder, "labelETA"));
-    imgRec = GTK_WIDGET(gtk_builder_get_object(builder, "imgRec"));
+    // labelETA = GTK_WIDGET(gtk_builder_get_object(builder, "labelETA"));
+    // imgRec = GTK_WIDGET(gtk_builder_get_object(builder, "imgRec"));
     imgBluetooth = GTK_WIDGET(gtk_builder_get_object(builder, "imgBluetooth"));
-
+    warnLeft = GTK_WIDGET(gtk_builder_get_object(builder, "warnLeft"));
+    warnRight = GTK_WIDGET(gtk_builder_get_object(builder, "warnRight"));
 
     g_object_unref(builder);
     
     gtk_widget_set_name (boxVert, "boxVert");
+    //gtk_widget_set_name (warnLeft, "warnSym");
+    //gtk_widget_set_name (warnRight, "warnSym");
     cssProvider = gtk_css_provider_new();
-    gtk_css_provider_load_from_path(cssProvider, "dark.css", NULL);
+    gtk_css_provider_load_from_path(cssProvider, "/home/pi/Insight_RPI/dark.css", NULL);
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
                                GTK_STYLE_PROVIDER(cssProvider),
                                GTK_STYLE_PROVIDER_PRIORITY_USER);
     //set labels
-    setDir("");
-    setETA("");
+    setDir("Connect your device.");
+    //setETA("");
     setSpeed("");
-    setDest("Connect your device.");
+    //setDest("Connect your device.");
     setBtImg(false);
+    setWarnLeft(false);
+    setWarnRight(false);
     //update time every second.
     g_timeout_add (1000,timeout_callback, NULL);
 

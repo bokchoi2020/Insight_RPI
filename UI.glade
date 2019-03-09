@@ -7,8 +7,8 @@
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
     <property name="window_position">center</property>
-    <property name="default_width">320</property>
-    <property name="default_height">240</property>
+    <property name="default_width">800</property>
+    <property name="default_height">600</property>
     <property name="hide_titlebar_when_maximized">True</property>
     <property name="type_hint">desktop</property>
     <property name="decorated">False</property>
@@ -18,16 +18,45 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
         <child>
-          <object class="GtkLabel" id="labelDir">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="halign">start</property>
-            <property name="margin_left">10</property>
-            <property name="label" translatable="yes">↰ 50m University Ave</property>
-            <attributes>
-              <attribute name="font-desc" value="Arial 20"/>
-            </attributes>
+            <property name="margin_top">200</property>
+            <child>
+              <object class="GtkImage" id="warnLeft">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="pixel_size">36</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">20</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkImage" id="warnRight">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">end</property>
+                <property name="valign">center</property>
+                <property name="pixel_size">36</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="padding">20</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">True</property>
@@ -36,31 +65,19 @@
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="labelDest">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="halign">start</property>
-            <property name="margin_left">10</property>
-            <property name="label" translatable="yes">203 Lester St.</property>
-            <attributes>
-              <attribute name="font-desc" value="Arial 16"/>
-            </attributes>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
-          <object class="GtkLabel" id="labelSpeed">
+          <object class="GtkLabel" id="labelDir">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="halign">start</property>
+            <property name="halign">center</property>
+            <property name="valign">end</property>
             <property name="margin_left">10</property>
-            <property name="label" translatable="yes">80km/hr</property>
+            <property name="label" translatable="yes">↰ 50m University Ave</property>
+            <property name="justify">center</property>
             <attributes>
-              <attribute name="font-desc" value="Arial 16"/>
+              <attribute name="font-desc" value="Arial 32"/>
             </attributes>
           </object>
           <packing>
@@ -81,27 +98,27 @@
                 <property name="margin_left">10</property>
                 <property name="label" translatable="yes">5:30 PM</property>
                 <attributes>
-                  <attribute name="font-desc" value="Arial 12"/>
+                  <attribute name="font-desc" value="Arial 32"/>
                 </attributes>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="labelETA">
+              <object class="GtkImage" id="imgBluetooth">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">ETA: 20m</property>
-                <attributes>
-                  <attribute name="font-desc" value="Arial 12"/>
-                </attributes>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="stock">gtk-missing-image</property>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
+                <property name="padding">20</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -110,22 +127,19 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkImage" id="imgRec">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="stock">gtk-image-empty</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkImage" id="imgBluetooth">
+                  <object class="GtkLabel" id="labelSpeed">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="stock">gtk-missing-image</property>
+                    <property name="halign">end</property>
+                    <property name="valign">center</property>
+                    <property name="label" translatable="yes">80km/h</property>
+                    <property name="justify">right</property>
+                    <attributes>
+                      <attribute name="font-desc" value="Arial 32"/>
+                    </attributes>
                   </object>
                   <packing>
                     <property name="expand">True</property>

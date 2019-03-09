@@ -7,11 +7,13 @@ using namespace std;
 
 void setDir(string dir);
 void setTime(string time);
-void setDest(string dest);
+//void setDest(string dest);
 void setSpeed (string speed);
-void setETA (string ETA);
+//void setETA (string ETA);
 int setupGTKDisplay(int argc, char *argv[]);
 void setBtImg(bool BtOn);
+void setWarnLeft(bool warn);
+void setWarnRight(bool warn);
 void setTheme(string name);
 void updateDisplay();
 #endif

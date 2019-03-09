@@ -7,6 +7,7 @@
 using namespace std;
 
 bool btConnected = false;
+bool warn[N_SENSOR];
 
 int main(int argc, char *argv[])
 {
@@ -27,24 +28,30 @@ int main(int argc, char *argv[])
         //if (i%10000 == 0) 
         //cout<<"looped"<<endl;
         //read distances        
-        getAllDistance();
+        getAllDistance(warn);
+        //show blindspot warnings
+        setWarnLeft(warn[1]);
+        setWarnRight(warn[0]);
         
         int btClient = getbtClient();
         
         //if device is disconnected, clear display
         if(btClient == -1 && btConnected)
         {
-            setDir("");
-            setETA("");
+            setDir("Connect your device.");
+            //setETA("");
             setSpeed("");
-            setDest("Connect your device.");
+            //setDest("Connect your device.");
             setBtImg(false);
+            setWarnLeft(false);
+            setWarnRight(false);
             btConnected = false;
         }
         //if device connected
         else if(btClient > 0 && !btConnected)
         {
-            setDest("No destination set.");
+            //setDest("No destination set.");
+            setDir("No Destination set.");
             setSpeed("- km/h");
             setBtImg(true);
             btConnected = true;
@@ -66,7 +73,7 @@ int main(int argc, char *argv[])
                 case msgSPD:
                     setSpeed(msg.text);
             }
-        }
+        }    
 
         //update display
         updateDisplay();

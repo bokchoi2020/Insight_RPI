@@ -44,10 +44,27 @@ autodisplay:
 	#fix screensaver issue (prevent screen off)
 	echo -en "@xset s noblank\n@xset s off\n@xset -dpms" > ~/.config/lxsession/LXDE-pi/autostart
 
+disabledisplay:
+	sudo mv /etc/modprobe.d/fbtft.conf /etc/modprobe.d/fbtft.conf.bak
+	sudo mv /usr/share/X11/xorg.conf.d/99-fbdev.conf /usr/share/X11/xorg.conf.d/99-fbdev.conf.bak
+
+reenabledisplay:
+	sudo mv /etc/modprobe.d/fbtft.conf.bak /etc/modprobe.d/fbtft.conf
+	sudo mv /usr/share/X11/xorg.conf.d/99-fbdev.conf.bak /usr/share/X11/xorg.conf.d/99-fbdev.conf
+
+autostart:
+	sudo cp insight.desktop /etc/xdg/autostart
+installservice:
+	sudo cp insight.service /etc/systemd/system 
+	systemctl enable insight.service
+
+disableservice:
+	systemctl disable insight.service
+
 createdir:
 	mkdir -p bin
 main:
-	g++ -O2 -o bin/insight.out main.cpp hc-sr04.cpp display.cpp bluetooth.c msgparser.cpp -lwiringPi -lbluetooth -Iinclude `pkg-config --cflags --libs gtk+-3.0`
+	g++ -O3 -o bin/insight.out main.cpp hc-sr04.cpp display.cpp bluetooth.c msgparser.cpp -lwiringPi -lbluetooth -Iinclude `pkg-config --cflags --libs gtk+-3.0`
 clean:
 	rm -rf bin/
 run:

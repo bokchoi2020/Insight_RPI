@@ -3,9 +3,9 @@
 
 #define ULT_REQ 17
 #define LED 5
-#define N_SENSOR 3
+#define N_SENSOR 2//3
 
 void ultsetup();
-void getAllDistance();
+void getAllDistance(bool * warn);
 
 #endif
