@@ -1,0 +1,63 @@
+/*https://people.gnome.org/~desrt/gtk/html/GtkCssProvider.html*/
+#MediumWhite {
+    background-color : #000000;
+    color : #ffffff;
+    font-size : 32pt;
+}
+#MediumCyan {
+    background-color : #000000;
+    color : #00eeff;
+    font-size : 32pt;
+}
+#MediumPink {
+    background-color : #000000;
+    color : #ff84ef;
+    font-size : 32pt;
+}
+#MediumGreen{
+    background-color : #000000;
+    color : #3cff00;
+    font-size : 32pt;
+}
+
+#LargeWhite {
+    background-color : #000000;
+    color : #ffffff;
+    font-size : 40pt;
+}
+#LargeCyan {
+    background-color : #000000;
+    color : #00eeff;
+    font-size : 40pt;
+}
+#LargePink {
+    background-color : #000000;
+    color : #ff84ef;
+    font-size : 40pt;
+}
+#LargeGreen{
+    background-color : #000000;
+    color : #3cff00;
+    font-size : 40pt;
+}
+
+#SmallWhite {
+    background-color : #000000;
+    color : #ffffff;
+    font-size : 24pt;
+}
+#SmallCyan {
+    background-color : #000000;
+    color : #00eeff;
+    font-size : 24pt;
+}
+#SmallPink {
+    background-color : #000000;
+    color : #ff84ef;
+    font-size : 24pt;
+}
+#SmallGreen{
+    background-color : #000000;
+    color : #3cff00;
+    font-size : 24pt;
+}

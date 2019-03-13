@@ -1,6 +1,7 @@
 #include "display.h"
 #include <gtk/gtk.h>
 #include <time.h>  
+#include <iostream>
 
 GtkBuilder      *builder;
 GtkWidget       *window;
@@ -31,7 +32,13 @@ void setTime(string time) { setLabel(labelTime, time); }
 void setSpeed (string speed) { setLabel(labelSpeed, speed); }
 //void setETA (string ETA){ setLabel(labelETA, ETA); }
 void setBtImg(bool BtOn){ gtk_image_set_from_file (GTK_IMAGE(imgBluetooth), BtOn?"/home/pi/Insight_RPI/bt_on.png":"/home/pi/Insight_RPI/bt_off.png");}
-void setTheme(string name){ gtk_css_provider_load_from_path(cssProvider, name.c_str(), NULL);}
+void setTheme(string cssName){ 
+    gtk_widget_set_name (boxVert, cssName.c_str());
+    gtk_widget_set_name (labelDir, cssName.c_str());
+    gtk_widget_set_name (labelTime, cssName.c_str());
+    gtk_widget_set_name (labelSpeed, cssName.c_str());
+ }
+
 void setWarnLeft(bool warn){
     if(warn != lastLeft){
         gtk_image_set_from_file (GTK_IMAGE(warnLeft), warn?"/home/pi/Insight_RPI/warning-small.png":"/home/pi/Insight_RPI/blank.png");
@@ -84,11 +91,11 @@ int setupGTKDisplay(int argc, char *argv[])
 
     g_object_unref(builder);
     
-    gtk_widget_set_name (boxVert, "boxVert");
+    gtk_widget_set_name (boxVert, "MediumWhite");
     //gtk_widget_set_name (warnLeft, "warnSym");
     //gtk_widget_set_name (warnRight, "warnSym");
     cssProvider = gtk_css_provider_new();
-    gtk_css_provider_load_from_path(cssProvider, "/home/pi/Insight_RPI/dark.css", NULL);
+    gtk_css_provider_load_from_path(cssProvider, "/home/pi/Insight_RPI/theme.css", NULL);
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
                                GTK_STYLE_PROVIDER(cssProvider),
                                GTK_STYLE_PROVIDER_PRIORITY_USER);

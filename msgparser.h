@@ -12,5 +12,6 @@ typedef struct msgStruct
 } msgStruct;
 
 msgStruct msgParser(string s);
+string loadSetting();
 
 #endif

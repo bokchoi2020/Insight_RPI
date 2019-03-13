@@ -1,0 +1,13 @@
+{
+	"settings":[
+		{
+			"propName":"color",
+			"value":"White"
+		},
+		{
+			"propName":"fontSize",
+			"value":"Large"
+		}
+	],
+	"messageType":"updateSetting"
+}

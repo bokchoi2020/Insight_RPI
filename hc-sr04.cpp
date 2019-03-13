@@ -5,11 +5,12 @@
 #include <wiringPi.h>
 #include <sys/time.h>
 #include "hc-sr04.h"
+#include <iomanip> 
 
 using namespace std;
 
 const int ult_echo [N_SENSOR] = { 22, 6 }; //27, 22 , 6 };
-const int danger_speed = 5;
+const int danger_speed = 10;
 const int danger_speed_distance = 200;
 const int safety_zone_radius = 20;
 
@@ -102,7 +103,7 @@ void getAllDistance(bool * warn)
             last_distance[i] = u_distance[i];
 
             u_distance[i] = (endTime[i] - startTime[i])/58.0;
-            cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
+            //cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
             //cout <<"start time: " <<startTime <<endl;
             //cout <<"end time: "<< endTime <<endl<<endl;
             ult_rdy[i] = 3;
@@ -120,49 +121,45 @@ void getAllDistance(bool * warn)
             cout <<"skipped distance"<<endl;
             return;
         }
+        /*
+        The LED lights up if at least 1 of 2 conditions is met:
+        1. any of the sensors reads less than safety_zone_radius (object is within safety zone).
+        2. an object continually moves toward the rider at <2m away
+
+        Notes:
+        - The value of danger_speed depends on how frequently data is read from the sensors,
+            and should be adjusted accordingly
+        - obviously we can have a more sophisticated high-pass filter if we recorded
+            more of the previous values, but the overhead of storing (and shifting everything
+            for the new values) might be undesirable
+        */
+
+        //bool ledReq = false;
+        for(int i = 0; i < N_SENSOR; i++)
+        {
+            //cout << "last dist: " << last_distance[i] << "sensor: " << i << endl;
+            //cout << "new dist:  " << u_distance[i] << "sensor: " << i << endl;
+            
+            if(u_distance[i] > 400){
+                u_distance[i] = 400;
+                warn[i] = false;
+            }
+            else if(u_distance[i] < safety_zone_radius || (last_distance[i] < danger_speed_distance && last_distance[i] - u_distance[i] > danger_speed))
+            {
+                //ledReq = true;
+                warn[i] = true;
+                //break;
+            }
+            else
+                warn[i] = false;
+
+            //cout << fixed << setprecision(2) << u_distance[i] << ", ";
+        }
+        //cout << endl;
+        
         ult_rdy[0] = 0;
         ult_rdy[1] = 0;
         ult_rdy[2] = 0;
         sendULTReq();
     }
-
-
-    /*
-    The LED lights up if at least 1 of 2 conditions is met:
-    1. any of the sensors reads less than safety_zone_radius (object is within safety zone).
-    2. an object continually moves toward the rider at <2m away
-
-    Notes:
-    - The value of danger_speed depends on how frequently data is read from the sensors,
-        and should be adjusted accordingly
-    - obviously we can have a more sophisticated high-pass filter if we recorded
-        more of the previous values, but the overhead of storing (and shifting everything
-        for the new values) might be undesirable
-    */
-
-    //bool ledReq = false;
-    for(int i = 0; i < N_SENSOR; i++)
-    {
-        //cout << "last dist: " << last_distance[i] << "sensor: " << i << endl;
-        //cout << "new dist:  " << u_distance[i] << "sensor: " << i << endl;
-        if(u_distance[i] < safety_zone_radius || (last_distance[i] < danger_speed_distance && last_distance[i] - u_distance[i] > danger_speed))
-        {
-            //ledReq = true;
-            warn[i] = true;
-            //break;
-        }
-        else
-            warn[i] = false;
-    }
-
-    // if(!ledON && ledReq)
-    // {
-    //     digitalWrite(LED, HIGH);
-    //     ledON = true;
-    // }
-    // else if(ledON && !ledReq)
-    // {
-    //     digitalWrite(LED, LOW); 
-    //     ledON = false;
-    // }
 }

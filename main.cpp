@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     
     //setup and start display
     setupGTKDisplay(argc, argv);
-    setTime("");
+    setTheme(loadSetting());
 
     //setup and start bluetooth
     init_server();	
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         {
             //setDest("No destination set.");
             setDir("No Destination set.");
-            setSpeed("- km/h");
+            setSpeed("0 km/h");
             setBtImg(true);
             btConnected = true;
         }
@@ -72,6 +72,10 @@ int main(int argc, char *argv[])
                     break;
                 case msgSPD:
                     setSpeed(msg.text);
+                    break;
+                case msgSET:
+                    setTheme(loadSetting());
+                    break;
             }
         }    
 

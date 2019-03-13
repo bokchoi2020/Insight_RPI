@@ -76,9 +76,6 @@
             <property name="margin_left">10</property>
             <property name="label" translatable="yes">↰ 50m University Ave</property>
             <property name="justify">center</property>
-            <attributes>
-              <attribute name="font-desc" value="Arial 32"/>
-            </attributes>
           </object>
           <packing>
             <property name="expand">True</property>
@@ -97,9 +94,6 @@
                 <property name="halign">start</property>
                 <property name="margin_left">10</property>
                 <property name="label" translatable="yes">5:30 PM</property>
-                <attributes>
-                  <attribute name="font-desc" value="Arial 32"/>
-                </attributes>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -137,9 +131,6 @@
                     <property name="valign">center</property>
                     <property name="label" translatable="yes">80km/h</property>
                     <property name="justify">right</property>
-                    <attributes>
-                      <attribute name="font-desc" value="Arial 32"/>
-                    </attributes>
                   </object>
                   <packing>
                     <property name="expand">True</property>
