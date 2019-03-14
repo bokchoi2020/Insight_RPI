@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdint.h>     // for uint32_t
+#include <cmath>
 #include <wiringPi.h>
 #include <sys/time.h>
 #include "hc-sr04.h"
@@ -13,9 +14,11 @@ const int ult_echo [N_SENSOR] = { 22, 6 }; //27, 22 , 6 };
 const int danger_speed = 10;
 const int danger_speed_distance = 200;
 const int safety_zone_radius = 20;
+const int avg_threshold = 30;
 
 volatile int ult_rdy[N_SENSOR];
-volatile float u_distance[N_SENSOR];
+int buffer_cnt = 0;
+volatile float u_distance[N_SENSOR][BUFFER_DEPTH];
 volatile float last_distance[N_SENSOR];
 
 volatile uint32_t startTime[N_SENSOR];
@@ -83,7 +86,9 @@ void ultsetup()
         pullUpDnControl(ult_echo[i],PUD_DOWN);
         // set ISRs
         wiringPiISR(ult_echo[i], INT_EDGE_BOTH, pISR[i]);
-        u_distance[i] = 100;
+        for(int j = 0; j < BUFFER_DEPTH; j++){
+            u_distance[i][j] = 0;
+        }
         last_distance[i] = 100;
         ult_rdy[i] = 0;
     }
@@ -100,9 +105,9 @@ void getAllDistance(bool * warn)
     {
         if(ult_rdy[i] == 2)
         {
-            last_distance[i] = u_distance[i];
+            //last_distance[i] = u_distance[i];
 
-            u_distance[i] = (endTime[i] - startTime[i])/58.0;
+            u_distance[i][buffer_cnt] = (endTime[i] - startTime[i])/58.0;
             //cout <<"Distance "<<i <<": " << u_distance[i] << "cm" <<endl;
             //cout <<"start time: " <<startTime <<endl;
             //cout <<"end time: "<< endTime <<endl<<endl;
@@ -139,24 +144,32 @@ void getAllDistance(bool * warn)
         {
             //cout << "last dist: " << last_distance[i] << "sensor: " << i << endl;
             //cout << "new dist:  " << u_distance[i] << "sensor: " << i << endl;
-            
-            if(u_distance[i] > 400){
-                u_distance[i] = 400;
-                warn[i] = false;
-            }
-            else if(u_distance[i] < safety_zone_radius || (last_distance[i] < danger_speed_distance && last_distance[i] - u_distance[i] > danger_speed))
+            float average = 0;
+            int cnt = 0;
+            for(int j = 0; j < BUFFER_DEPTH; j++)
             {
-                //ledReq = true;
-                warn[i] = true;
-                //break;
+                if(u_distance[i][j] > 400){
+                    u_distance[i][j] = 400;
+                    continue;
+                }
+                cnt++;
+                average += u_distance[i][j];
+            }
+            if(!cnt)
+                continue;
+            average = average/cnt;
+            float dist = u_distance[i][buffer_cnt];
+            if(dist < safety_zone_radius && abs((double)(average-dist)) < avg_threshold )// || )(last_distance[i] < danger_speed_distance && last_distance[i] - u_distance[i] > danger_speed))
+            {
+                warn[i] = true;      
             }
             else
                 warn[i] = false;
 
-            //cout << fixed << setprecision(2) << u_distance[i] << ", ";
+            cout << fixed << setprecision(2) << average<<",";//u_distance[i] << ", ";
         }
-        //cout << endl;
-        
+        cout << endl;
+        buffer_cnt = (buffer_cnt+1)%BUFFER_DEPTH;
         ult_rdy[0] = 0;
         ult_rdy[1] = 0;
         ult_rdy[2] = 0;
