@@ -1,5 +1,5 @@
 # RPI_C
-Insight is a heads-up display which provides assisted navigation and situational awareness to motorcylists. A blindspot detection system was created using ultrasound sensors with hardware interrupts (IRQs) and data filtering.  We utilized RFCOMM Bluetooth communication with a smartphone for receiving directions from Google Maps API.  Raspberry Pi 3B was configured to process data from the blindspot system, bluetooth stack, and user display.
+Insight is a heads-up display which provides assisted navigation and situational awareness to motorcylists. A blindspot detection system was created using ultrasound sensors with hardware interrupts (IRQs) and data filtering.  We utilized RFCOMM Bluetooth communication with a smartphone for receiving directions from Google Maps API.  A Raspberry Pi 3B was configured to process data from the blindspot system, bluetooth stack, and user display.
 
 ## Ultrasound
 Uses wiringPi.h in gpioBCM mode. Remember to use wiringPiSetupGpio() instead of wiringPiSetup().
